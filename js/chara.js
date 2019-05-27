@@ -54,6 +54,27 @@ class CharaApi {
   }
 
 
+  set size(value) {
+    if (typeof value !== 'number' || !isFinite(value)) throw Error('chara.size は数字以外を宣言できません')
+    value = value < 10 ? 10 : value
+    value = value > 100 ? 100 : value
+
+    const updateStatus = { size: value }
+    playerChara.update(updateStatus)
+    socket.broad('update', updateStatus, socket.id)
+  }
+
+
+  set color(value) {
+    if (typeof value === 'number') { value = `0x${value.toString(16).padStart(6, '0')}` }
+    if (!/^0x[0-9a-f]{6,}$/.test(value)) throw Error('chara.color のフォーマットが正しくありません。0x から始まり、 0-f で構成された8桁のrgb形式で表記してください 例)0x00ff00')
+
+    const updateStatus = { color: value }
+    playerChara.update(updateStatus)
+    socket.broad('update', updateStatus, socket.id)
+  }
+
+
   set hp(value) {
     if (typeof value !== 'number' || !isFinite(value)) throw Error('chara.hp は数字以外を宣言できません')
 
@@ -155,8 +176,8 @@ export default class Chara {
     this.hitFrag = true
 
     this.status = {
-      x: Math.floor(Math.random() * window.innerWidth),
-      y: Math.floor(Math.random() * window.innerHeight),
+      x: Math.floor(Math.random() * stage.width),
+      y: Math.floor(Math.random() * stage.height),
       size: 20,
       color: 0x000000,
       hp: 50,
@@ -177,8 +198,7 @@ export default class Chara {
     this.status = Object.assign(this.status, status)
 
     this.sprite = new PIXI.Container()
-    this.charaSpriteUpdate()
-    this.hpSpriteUpdate()
+    this.charaSpriteChange()
     this.sprite.position.x = this.status.x
     this.sprite.position.y = this.status.y
 
@@ -196,7 +216,7 @@ export default class Chara {
   }
 
 
-  charaSpriteUpdate() {
+  charaSpriteChange() {
     if (this.charaSprite) {
       this.charaSprite.parent.removeChild(this.charaSprite)
       this.charaSprite.destroy({ children: true, texture: true, baseTexture: true })
@@ -209,18 +229,19 @@ export default class Chara {
     this.charaSprite.endFill()
 
     this.sprite.addChild(this.charaSprite)
-    stage.render()
+
+    this.hpSpriteChange()
   }
 
 
-  hpSpriteUpdate() {
+  hpSpriteChange() {
     if (this.hpSprite) {
       this.hpSprite.parent.removeChild(this.hpSprite)
       this.hpSprite.destroy({ children: true, texture: true, baseTexture: true })
       this.hpSprite = null
     }
 
-    this.hpSprite = new PIXI.Text(this.status.hp, { font: 'bold 16pt Arial', fill: color.hexToTextColor(this.status.color) })
+    this.hpSprite = new PIXI.Text(this.status.hp, { font: `bold ${this.status.size - 5}pt Arial`, fill: color.hexToTextColor(this.status.color) })
     this.hpSprite.anchor.x = 0.5
     this.hpSprite.anchor.y = 0.5
 
@@ -234,6 +255,8 @@ export default class Chara {
       switch (statusName) {
         case 'x': this.positionXUpdate(updateStatus.x); break
         case 'y': this.positionYUpdate(updateStatus.y); break
+        case 'size': this.charaSpriteSizeUpdate(updateStatus.size); break
+        case 'color': this.charaSpriteColorUpdate(updateStatus.color); break
         case 'hp': this.hpUpdate(updateStatus.hp); break
         default: this.statsUpdate(updateStatus); break
       }
@@ -259,9 +282,22 @@ export default class Chara {
   }
 
 
+  charaSpriteSizeUpdate(size) {
+    this.status.size = size
+    this.charaSpriteChange()
+  }
+
+
+  charaSpriteColorUpdate(color) {
+    this.status.color = color
+    sessionStorage.setItem('myColor', `${color.slice(-6)}`)
+    this.charaSpriteChange()
+  }
+
+
   hpUpdate(hp) {
     this.statsUpdate({ hp: hp })
-    this.hpSpriteUpdate()
+    this.hpSpriteChange()
   }
 
 
@@ -326,8 +362,6 @@ export default class Chara {
 
     stage.addRoopEvent(() => {
       if (!moveX && !moveY) return
-      console.log(moveX, moveY)
-
       const offsetSpeed = this.status.speed / 10
 
       const updateStatus = {}

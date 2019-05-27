@@ -51,25 +51,64 @@
 - __Ctrl + s__: 機能を保存し、プレイヤーに反映する
 
 
-## 基本Api
-
-code editor で操作出来るものは、グローバル変数と、Online Code Game が提供する api のみになります
+## update api
 
 
-### chara api
-
-chara はキャラクターのステータスを操作する api です
+### 繰り返し処理を行います
 
 ---
-#### キャラクターを移動させる
+繰り返し処理を行い際に使用する api です
+
+これは setinterval の代替になります
+
+繰り返しはおおよそ一秒間に30回繰り返し実行されます
+
+    update = () => { callback }
+
+サンプル
+```javascript
+// 自動回復機能を追加します
+update = () => {
+  chara.hpUp(1)
+}
+```
+
+
+## chara api
+
+chara api はキャラクターのステータスを操作する api です
+
+charaクラスは初期状態で以下のデータを所持しています
+
+
+---
+chara.x // x座標の位置です。初期状態はランダムで決まります
+
+chara.y   // y座標の位置です。初期状態はランダムで決まります
+
+chara.size = 20  // キャラクターの半径です。衝突判定に利用されます 初期値は20です
+
+chara.color // 見た目の色です。ブラウザの初回読み時にランダムで決まります
+
+chara.hp = 50  // 体力です。初期値は50です
+
+chara.power =  50 // 攻撃力です。初期値は50です
+
+chara.speed =  50 // 移動力です。初期値は50です
+
+chara.resource = 100 // ステータスを変更できるリソースです。初回ブラウザ読み込み時に100になり、ゆっくりと加算されて行きます
+---
+
+---
+### キャラクターを移動させる
 
 指定したx座標にキャラクターを移動する
 
-    chara.x = \[number\]
+    chara.x = value: number
 
 指定したy座標にキャラクターを移動する
 
-    chara.y = \[number\]
+    chara.y = value: number
 
 
 サンプル
@@ -80,20 +119,38 @@ chara.y = 200
 ```
 
 ---
-#### キャラクターの体力を管理する
+### キャラクターのサイズを変更する
+
+キャラクターのサイズを指定した数値にします
+
+最小値は10で、最大値は100です
+
+    chara.size = value: number
+
+サンプル
+```javascript
+// キャラクターの体力が少なくなった時に、小さくなって辺りにくくします
+update = () => {
+  chara.size = chara.hp
+}
+```
+
+
+---
+### キャラクターの体力を管理する
 
 キャラクターの体力を指定した数値にします
 
 変更時、元の体力の差分だけリソースが変更されます
 
-    chara.hp = \[number\]
+    chara.hp = value: number
 
 
 キャラクターの体力を指定した数値だけ加算する
 
 変更時、加算した値だけリソースが変更されます
 
-    chara.hpUp(\[number\])
+    chara.hpUp(value: number)
 
 サンプル
 ```javascript
@@ -110,20 +167,20 @@ chara.ho = 50
 ```
 
 ---
-#### キャラクターの攻撃力を管理する
+### キャラクターの攻撃力を管理する
 
 キャラクターの攻撃力を指定した数値にします
 
 変更時、元の攻撃力の差分の絶対値だけリソースを消費します
 
-    chara.power = \[number\]
+    chara.power = value: number
 
 
 キャラクターの攻撃力を指定した数値だけ加算します
 
 変更時、値の絶対値だけリソースを消費します
 
-    chara.powerUp(\[number\])
+    chara.powerUp(value: number)
 
 サンプル
 ```javascript
@@ -140,20 +197,20 @@ chara.ho = 50
 ```
 
 ---
-#### キャラクターの速度を管理する
+### キャラクターの速度を管理する
 
 キャラクターの速度を指定した数値にします
 
 変更時、元の速度の値だけリソースが変更されます
 
-    chara.speed = \[number\]
+    chara.speed = value: number
 
 
 キャラクターの速度を指定した数値だけ加算します
 
 変更時、加算した値だけリソースが変更されます
 
-    chara.speedUp(\[number\])
+    chara.speedUp(value: number)
 
 サンプル
 ```javascript
@@ -170,7 +227,7 @@ chara.speed = 50
 ```
 
 ---
-#### リソースを取得する
+### リソースを取得する
 
 現在のリソースを取得します
 
@@ -191,7 +248,7 @@ chara.hpUp(chara.resource)
 ```
 
 ---
-#### 設定を取得します
+### 設定を取得します
 
 現在の設定を取得します
 
@@ -209,22 +266,13 @@ chara.hp = beforePower
 chara.power = beforeHp
 ```
 
----
-#### 繰り返し処理を追加します
 
-繰り返し処理を追加します
-繰り返しはおおよそ一秒間に30回繰り返し実行されます
+## 更新履歴
 
-    update = () => { :callback }
+5/27
+    初期位置がcanvas外になるバグの修正
+    chara api に chara.size, chara.color を追加
 
-サンプル
-```javascript
-// 自動回復機能を追加します
-update = () => {
-  chara.hpUp(1)
-}
-```
----
 
 ## ライセンス
 
