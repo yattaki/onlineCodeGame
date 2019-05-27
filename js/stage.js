@@ -27,11 +27,19 @@ const stage = new class Stage {
   }
 
   roop(renderer) {
+    let timeStamp = new Date()
+
     const roopEvent = () => {
       this._roopFrag && requestAnimationFrame(roopEvent)
 
       roopListEvent.forEach(callback => callback())
-      typeof window.update === 'function' && window.update()
+
+      const nawTimeStamp = new Date()
+      if (nawTimeStamp - timeStamp > 1000 / 60) {
+        timeStamp = nawTimeStamp
+        typeof window.update === 'function' && window.update()
+      }
+
       gameover.check()
 
       this._renderFrag && renderer.render(this.stage)
