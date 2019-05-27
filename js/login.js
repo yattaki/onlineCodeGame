@@ -103,7 +103,7 @@ export default new class Login {
       button.textContent = ''
 
       const chara = new Chara({ color: `0x${sessionStorage.getItem('myColor')}` }, socket.id)
-      chara.playerChara(chara)
+      chara.playerChara(chara, button)
       this.run(sessionStorage.getItem('code'))
 
       button.addEventListener('click', this.toggleEditorEvent())
@@ -168,6 +168,8 @@ export default new class Login {
   run(code) {
     if (!code) return
     try {
+      if (/addEventListener/.test(code)) throw Error('addEventListener は禁止されています。代わりにwindow.on* を使用してください')
+
       window.update = null
       !(0, eval)(code)
       sessionStorage.setItem('code', code)
@@ -190,6 +192,7 @@ export default new class Login {
       socket.private('sendCode', socketId, sessionStorage.getItem('code'), socket.id)
     })
     socket.on('sendCode', (code, socketId) => {
+      console.log(code)
       if (this._group === socketId) {
         this._myEditor.value = code
       } else {

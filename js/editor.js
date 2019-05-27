@@ -92,8 +92,7 @@ export default class Editor {
   }
 
 
-  set value(value) {
-    if (!value) return
+  set value(value = '') {
     return this.editor.setValue(value)
   }
 

@@ -10,7 +10,7 @@ const charaMap = new Map()
 gameover.checkMap(charaMap)
 
 let playerChara
-
+let playerButton
 
 socket.connect(() => { socket.broad('callChara', socket.id) })
 
@@ -69,6 +69,7 @@ class CharaApi {
     if (typeof value === 'number') { value = `0x${value.toString(16).padStart(6, '0')}` }
     if (!/^0x[0-9a-f]{6,}$/.test(value)) throw Error('chara.color のフォーマットが正しくありません。0x から始まり、 0-f で構成された8桁のrgb形式で表記してください 例)0x00ff00')
 
+    sessionStorage.setItem('myColor', `${value.slice(-6)}`)
     const updateStatus = { color: value }
     playerChara.update(updateStatus)
     socket.broad('update', updateStatus, socket.id)
@@ -290,12 +291,16 @@ export default class Chara {
 
   charaSpriteColorUpdate(color) {
     this.status.color = color
-    sessionStorage.setItem('myColor', `${color.slice(-6)}`)
+    const hex = color.slice(-6)
+
+    if (playerButton) playerButton.style.backgroundColor = `#${hex}`
     this.charaSpriteChange()
   }
 
 
   hpUpdate(hp) {
+    if (this.status.hp < 0) return
+
     this.statsUpdate({ hp: hp })
     this.hpSpriteChange()
   }
@@ -329,8 +334,9 @@ export default class Chara {
   }
 
 
-  playerChara(charaClass) {
+  playerChara(charaClass, button) {
     playerChara = charaClass
+    playerButton = button
     this.addKeyEvent()
     this.addResourceElement()
     window.chara = new CharaApi()
