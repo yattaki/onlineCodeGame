@@ -131,7 +131,28 @@ chara.y = 200
 ```javascript
 // キャラクターの体力が少なくなった時に、小さくなって当たりにくくします
 update = () => {
-  chara.size = chara.hp
+    chara.size = chara.hp
+}
+```
+
+
+---
+### キャラクターの色を変更する
+
+キャラクターの色を指定した色に変更します
+
+指定するカラーコードは ffffff のような rgb形式での記述になります
+
+    chara.color = value: rgb
+
+サンプル
+```javascript
+// ステータスに応じて色を変える
+update = () => {
+    const r = Math.max(0, Math.min(16, chara.power)).toString(16).padStart(2, '0')
+    const g = Math.max(0, Math.min(16, chara.hp)).toString(16).padStart(2, '0')
+    const b = Math.max(0, Math.min(16, chara.speed)).toString(16).padStart(2, '0')
+    chara.color = `${r}${g}${b}`
 }
 ```
 
@@ -266,13 +287,55 @@ chara.hp = beforePower
 chara.power = beforeHp
 ```
 
+## 開発者向け
+
+ローカル動作環境準備
+
+1. [Node.js](https://nodejs.org/ja/) をダウンロード
+
+2. Git リポトジ を取得する
+
+    コマンドラインからの取得
+    ```
+    git clone https://github.com/yattaki/onlineCodeGame.git
+    ```
+3. サーバーを立ち上げる
+
+    windowsの場合は server.bat をクリックすれば立ち上がります
+
+    コマンドラインからの立ち上げ
+
+    ```
+    node server.js
+    ```
+
+4. ブラウザから、サーバーにアクセス
+
+    デフォルトポートは3000番になります
+
+    URL: http://localhost:3000
+
+
+## 使用環境
+
+サーバーサイド
+
+    Node.js v8.11.3
+
+ライブラリ
+
+    pixi.js v5.0.3
 
 ## 更新履歴
 
 5/27
+
     初期位置がcanvas外になるバグの修正
     chara api に chara.size, chara.color を追加
 
+5/29
+
+    pixi.jsをv5.0.3に更新
 
 ## ライセンス
 

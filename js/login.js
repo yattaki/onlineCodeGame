@@ -102,7 +102,7 @@ export default new class Login {
       this._group = socket.id
       button.textContent = ''
 
-      const chara = new Chara({ color: `0x${sessionStorage.getItem('myColor')}` }, socket.id)
+      const chara = new Chara({ color: sessionStorage.getItem('myColor') }, socket.id)
       chara.playerChara(chara, button)
       this.run(sessionStorage.getItem('code'))
 

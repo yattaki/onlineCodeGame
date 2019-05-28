@@ -37,7 +37,7 @@ socket.disconnect((socketId) => {
 
 class CharaApi {
   set x(value) {
-    if (typeof value !== 'number' || !isFinite(value)) throw Error('chara.x は数字以外を宣言できません')
+    if (typeof value !== 'number' || Number.isNaN(value) || value === Infinity) throw Error('chara.x は数字以外を宣言できません')
 
     const updateStatus = { x: value }
     playerChara.update(updateStatus)
@@ -46,7 +46,7 @@ class CharaApi {
 
 
   set y(value) {
-    if (typeof value !== 'number' || !isFinite(value)) throw Error('chara.y は数字以外を宣言できません')
+    if (typeof value !== 'number' || Number.isNaN(value) || value === Infinity) throw Error('chara.y は数字以外を宣言できません')
 
     const updateStatus = { y: value }
     playerChara.update(updateStatus)
@@ -55,7 +55,7 @@ class CharaApi {
 
 
   set size(value) {
-    if (typeof value !== 'number' || !isFinite(value)) throw Error('chara.size は数字以外を宣言できません')
+    if (typeof value !== 'number' || Number.isNaN(value) || value === Infinity) throw Error('chara.size は数字以外を宣言できません')
     value = value < 10 ? 10 : value
     value = value > 100 ? 100 : value
 
@@ -66,10 +66,14 @@ class CharaApi {
 
 
   set color(value) {
-    if (typeof value === 'number') { value = `0x${value.toString(16).padStart(6, '0')}` }
-    if (!/^0x[0-9a-f]{6,}$/.test(value)) throw Error('chara.color のフォーマットが正しくありません。0x から始まり、 0-f で構成された8桁のrgb形式で表記してください 例)0x00ff00')
+    if (typeof value === 'number') {
+      value = value.toString(16).padStart(6, '0')
+    } else {
+      value = value.replace(/^(0x|#)/, '')
+    }
+    if (!/^[0-9a-f]{6,}$/.test(value)) throw Error('chara.color のフォーマットが正しくありません。0-f で構成された6桁のrgb形式で表記してください 例)00ff00')
 
-    sessionStorage.setItem('myColor', `${value.slice(-6)}`)
+    sessionStorage.setItem('myColor', value)
     const updateStatus = { color: value }
     playerChara.update(updateStatus)
     socket.broad('update', updateStatus, socket.id)
@@ -77,8 +81,9 @@ class CharaApi {
 
 
   set hp(value) {
-    if (typeof value !== 'number' || !isFinite(value)) throw Error('chara.hp は数字以外を宣言できません')
+    if (typeof value !== 'number' || Number.isNaN(value) || value === Infinity) throw Error('chara.hp は数字以外を宣言できません')
 
+    value = Math.floor(value)
     value = value > 0 ? value : 1
     value = value < playerChara.status.resource + playerChara.status.hp ? value : playerChara.status.resource + playerChara.status.hp
     const resource = playerChara.status.resource - value + playerChara.status.hp
@@ -88,8 +93,9 @@ class CharaApi {
   }
 
   hpUp(value) {
-    if (typeof value !== 'number' || !isFinite(value)) throw Error('chara.hpUp は数字以外を宣言できません')
+    if (typeof value !== 'number' || Number.isNaN(value) || value === Infinity) throw Error('chara.hpUp は数字以外を宣言できません')
 
+    value = Math.floor(value)
     value = value < 0 && value - playerChara.status.hp < 1 ? 1 - playerChara.status.hp : value
     value = value < playerChara.status.resource ? value : playerChara.status.resource
     const resource = playerChara.status.resource - value
@@ -100,8 +106,9 @@ class CharaApi {
 
 
   set power(value) {
-    if (typeof value !== 'number' || !isFinite(value)) throw Error('chara.power は数字以外を宣言できません')
+    if (typeof value !== 'number' || Number.isNaN(value) || value === Infinity) throw Error('chara.power は数字以外を宣言できません')
 
+    value = Math.floor(value)
     let negativeFrag = false
     if (value < 0) {
       negativeFrag = true
@@ -118,8 +125,9 @@ class CharaApi {
   }
 
   powerUp(value) {
-    if (typeof value !== 'number' || !isFinite(value)) throw Error('chara.powerUp は数字以外を宣言できません')
+    if (typeof value !== 'number' || Number.isNaN(value) || value === Infinity) throw Error('chara.powerUp は数字以外を宣言できません')
 
+    value = Math.floor(value)
     let negativeFrag = false
     if (value < 0) {
       negativeFrag = true
@@ -136,7 +144,8 @@ class CharaApi {
 
 
   set speed(value) {
-    if (typeof value !== 'number' || !isFinite(value)) throw Error('chara.speed は数字以外を宣言できません')
+    if (typeof value !== 'number' || Number.isNaN(value) || value === Infinity) throw Error('chara.speed は数字以外を宣言できません')
+    value = Math.floor(value)
     if (value < 0) throw Error('chara.speed は負の値を宣言出来ません')
 
     value = value > 0 ? value : 1
@@ -148,10 +157,11 @@ class CharaApi {
   }
 
   speedUp(value) {
-    if (typeof value !== 'number' || !isFinite(value)) throw Error('chara.speedUp は数字以外を宣言できません')
-    if (value < 0) throw Error('chara.speedUp は負の値を宣言出来ません')
+    if (typeof value !== 'number' || Number.isNaN(value) || value === Infinity) throw Error('chara.speedUp は数字以外を宣言できません')
 
-    value = value < playerChara.status.speed ? value : playerChara.status.speed - 1
+    value = Math.floor(value)
+
+    value = playerChara.status.speed + value > 0 ? value : playerChara.status.speed - 1
     value = value < playerChara.status.resource ? value : playerChara.status.resource
     const resource = playerChara.status.resource - value
     const updateStatus = { speed: playerChara.status.speed + value, resource: resource }
@@ -180,7 +190,7 @@ export default class Chara {
       x: Math.floor(Math.random() * stage.width),
       y: Math.floor(Math.random() * stage.height),
       size: 20,
-      color: 0x000000,
+      color: 's000000',
       hp: 50,
       power: 50,
       speed: 50,
@@ -220,12 +230,12 @@ export default class Chara {
   charaSpriteChange() {
     if (this.charaSprite) {
       this.charaSprite.parent.removeChild(this.charaSprite)
-      this.charaSprite.destroy({ children: true, texture: true, baseTexture: true })
+      this.charaSprite.destroy(true)
       this.charaSprite = null
     }
 
     this.charaSprite = new PIXI.Graphics()
-    this.charaSprite.beginFill(this.status.color)
+    this.charaSprite.beginFill(`0x${this.status.color}`)
     this.charaSprite.drawCircle(0, 0, this.status.size)
     this.charaSprite.endFill()
 
@@ -238,11 +248,11 @@ export default class Chara {
   hpSpriteChange() {
     if (this.hpSprite) {
       this.hpSprite.parent.removeChild(this.hpSprite)
-      this.hpSprite.destroy({ children: true, texture: true, baseTexture: true })
+      this.hpSprite.destroy(true)
       this.hpSprite = null
     }
 
-    this.hpSprite = new PIXI.Text(this.status.hp, { font: `bold ${this.status.size - 5}pt Arial`, fill: color.hexToTextColor(this.status.color) })
+    this.hpSprite = new PIXI.Text(this.status.hp, { font: `bold ${this.status.size - 5}pt Arial`, fill: `0x${color.hexToTextColor(this.status.color)}` })
     this.hpSprite.anchor.x = 0.5
     this.hpSprite.anchor.y = 0.5
 
@@ -259,7 +269,7 @@ export default class Chara {
         case 'size': this.charaSpriteSizeUpdate(updateStatus.size); break
         case 'color': this.charaSpriteColorUpdate(updateStatus.color); break
         case 'hp': this.hpUpdate(updateStatus.hp); break
-        default: this.statsUpdate(updateStatus); break
+        default: this.statsUpdate(statusName, updateStatus[statusName]); break
       }
     }
   }
@@ -291,9 +301,7 @@ export default class Chara {
 
   charaSpriteColorUpdate(color) {
     this.status.color = color
-    const hex = color.slice(-6)
-
-    if (playerButton) playerButton.style.backgroundColor = `#${hex}`
+    if (playerButton) playerButton.style.backgroundColor = `#${color}`
     this.charaSpriteChange()
   }
 
@@ -301,15 +309,13 @@ export default class Chara {
   hpUpdate(hp) {
     if (this.status.hp < 0) return
 
-    this.statsUpdate({ hp: hp })
+    this.statsUpdate('hp', hp)
     this.hpSpriteChange()
   }
 
 
-  statsUpdate(updateStatus) {
-    for (const statusType in updateStatus) {
-      this.status[statusType] = updateStatus[statusType]
-    }
+  statsUpdate(statusName, value) {
+    this.status[statusName] = value
   }
 
 

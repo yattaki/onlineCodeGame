@@ -16,7 +16,12 @@ const stage = new class Stage {
   }
 
   addStage() {
-    const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, { antialias: true, transparent: true })
+    const renderer = PIXI.autoDetectRenderer({
+      width: window.innerWidth,
+      height: window.innerHeight,
+      antialias: true,
+      transparent: true
+    })
     document.getElementById('app').appendChild(renderer.view)
     this.stage = new PIXI.Container()
     this.view = renderer.view
@@ -35,7 +40,7 @@ const stage = new class Stage {
       roopListEvent.forEach(callback => callback())
 
       const nawTimeStamp = new Date()
-      if (nawTimeStamp - timeStamp > 1000 / 60) {
+      if (nawTimeStamp - timeStamp > 100 / 3) {
         timeStamp = nawTimeStamp
         typeof window.update === 'function' && window.update()
       }

@@ -14,6 +14,8 @@ new class Server {
     server.listen(port)
     const io = socketio.listen(server)
     this.socket(io)
+
+    console.log('server running...')
   }
 
 
@@ -21,6 +23,7 @@ new class Server {
     const path = decodeURI(req.url === '/' ? './index.html' : `.${req.url}`).replace(/[?].*$/, '')
 
 
+    console.log('file load: ', path)
     fs.readFile(path, (error, result) => {
       if (error) {
         res.writeHead(404, { 'Content-Type': 'text/plain' })
@@ -29,7 +32,6 @@ new class Server {
         return
       }
 
-      console.log(path)
       res.writeHead(200, { 'Content-Type': mime.getType(path) })
       res.write(result)
       res.end()
@@ -39,6 +41,7 @@ new class Server {
 
   socket(io) {
     io.sockets.on('connection', (socket) => {
+      console.log('connection socket: ', socket.id)
       socket.on('disconnect', () => io.sockets.emit('disconnect', socket.id))
 
       socket.on('broad', (socketName, args) => socket.broadcast.emit(socketName, args))
