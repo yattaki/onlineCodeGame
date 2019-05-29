@@ -13,12 +13,7 @@
 <body>
   <script src="/socket.io/socket.io.js"></script>
   <script src="js/pixi.min.js"></script>
-  <script>
-    PIXI.Text.prototype.destroy = function (destroyTexture) {
-      this.context = this.canvas = null
-      destroyTexture && this.texture.destroy(destroyTexture)
-    }
-  </script>
+  <script src="js/pixi_memoly.js"></script>
   <script src="ace/ace.js"></script>
   <script src="ace/ext-language_tools.js"></script>
   <script type="module" src="/js/main.js"></script>

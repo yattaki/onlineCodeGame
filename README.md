@@ -9,15 +9,15 @@
 
 ## 始め方
 
-- プレイヤーとして始める
-  - 左上のプラスボタンを押すと開始
+### プレイヤーとして始める
+- 左上のプラスボタンを押すと開始
 
-  - もう一度押すと、自分自身でキャラクターに機能を追加するエディターモードになる
+ - もう一度押すと、自分自身でキャラクターに機能を追加するエディターモードになる
 
-- サポーターとして始める
-  - 左側のプラス以外のボタンを押すと開始
+### サポーターとして始める
+- 左側のプラス以外のボタンを押すと開始
 
-  - サポートする相手は最初に押したボタンのキャラクターになる
+- サポートする相手は最初に押したボタンのキャラクターになる
 
 ## プレイヤー基本行動
 
@@ -51,13 +51,13 @@
 - __Ctrl + s__: 機能を保存し、プレイヤーに反映する
 
 
-## update api
+## update API
 
 
 ### 繰り返し処理を行います
 
 ---
-繰り返し処理を行い際に使用する api です
+繰り返し処理を行い際に使用する API です
 
 これは setinterval の代替になります
 
@@ -74,9 +74,9 @@ update = () => {
 ```
 
 
-## chara api
+## chara API
 
-chara api はキャラクターのステータスを操作する api です
+chara API はキャラクターのステータスを操作する API です
 
 charaクラスは初期状態で以下のデータを所持しています
 
@@ -149,9 +149,9 @@ update = () => {
 ```javascript
 // ステータスに応じて色を変える
 update = () => {
-    const r = Math.max(0, Math.min(16, chara.power)).toString(16).padStart(2, '0')
-    const g = Math.max(0, Math.min(16, chara.hp)).toString(16).padStart(2, '0')
-    const b = Math.max(0, Math.min(16, chara.speed)).toString(16).padStart(2, '0')
+    const r = Math.max(0, Math.min(255, chara.power)).toString(16).padStart(2, '0')
+    const g = Math.max(0, Math.min(255, chara.hp)).toString(16).padStart(2, '0')
+    const b = Math.max(0, Math.min(255, chara.speed)).toString(16).padStart(2, '0')
     chara.color = `${r}${g}${b}`
 }
 ```
@@ -287,6 +287,157 @@ chara.hp = beforePower
 chara.power = beforeHp
 ```
 
+
+## socket API
+
+socket API は他人とデータをやり取りする為の API です
+
+
+---
+### 自分の socketId を取得する
+
+自身の socketId を返します
+
+接続前に呼び出した場合 undefine を返します
+
+    socket.id
+
+サンプル
+```javascript
+// ソケットのidを取得します
+ sockey.connect().then(() => {
+     alert(socket.id)
+ })
+```
+
+
+---
+
+### 接続を確認します
+
+promise 構文を返し、接続できた、あるいは既に出来ている場合は resolve を返します
+
+また、resolve の際、引数に関数が指定されている場合は実行されます
+
+        socket.connect([callback: function])
+
+サンプル
+```javascript
+// ソケットの接続を待機します
+ sockey.connect().then(() => {
+     alert('接続できた')
+ })
+
+ // あるいは
+ socket.connect(() => {
+     alert('接続できた')
+ })
+```
+
+---
+## 切断を監視します
+
+誰かが接続から外れた時に引数の関数を実行します
+
+    socket.disconnect(callback: function)
+
+サンプル
+```javascript
+// ソケットの切断を取得します
+ sockey.connect().then(() => {
+     alert('誰かが抜けた')
+ })
+```
+
+
+---
+## ソケットを自分以外に送信します
+
+指定したソケット名のソケットを送信します
+
+    socket.broad(socketName: string, ...args: wildcard type)
+
+サンプル
+```javascript
+// 'declareWar' ソケットを全員に送る
+ sockey.on('declareWar', '戦線布告だ！')
+```
+
+---
+## ソケットを特定の相手に送信します
+
+指定したソケット名のソケットを特定の相手に送信します
+
+    socket.private(socketName: string, socketId: string, ...args: wildcard type)
+
+サンプル
+```javascript
+// 'declareWar' ソケットを qawsedrf に送る
+ sockey.private('declareWar', 'qawsedrf',  '戦線布告だ！')
+```
+
+---
+## ソケットの発信を監視します
+
+誰から送信されたソケットを取得します
+
+    socket.on(socketName: string, callback: function)
+
+サンプル
+```javascript
+// 'declareWar' ソケットを受け取る
+ sockey.on('declareWar', (message) => {
+     alert('宣戦布告を受けた！')
+     alert(message)
+ })
+```
+
+
+## alert API
+
+alert API はゲーム中に動作がロックされないよう変更したメッセージ API です
+
+デバッグやリソースの確認を開発者モードを開かずとも確認が出来ます
+
+※ デフォルトの alert を上書きしています。デバッグを行う際は conssole.log() からの出力を推奨します
+
+---
+
+確認内容を表示します
+
+    alert(message : number, option: object)
+
+
+
+### オプションリスト
+
+option.type: メッセージタイプを指定します
+- error: エラーアラートに変更されます。背景が赤くなり、クリックするまで消えません
+
+- warn: 警告アラートに変更されます。背景が黄色くなり、クリックするまで消えません
+
+- confirm: 選択アラートに変更されます。promise構文を返すようになり、クリックした際にクリックしたボタンの名前を resolveします
+
+- delay: 待機アラートに変更されます。finish イベントを返すようになり、発火させることで消えます
+
+option.delay = 5000: 表示時間をミリ秒で指定します 初期状態は5000です
+
+option.yes = , option.no: 選択ボタンの名前を変更します option.type が自動的に confirm に変更されます 引数は String 型です
+
+option.progress: 選択ボタンを追加します option.type が自動的に confirm に変更されます 引数はarray: String 型です
+
+option.finishMessage: 選択ボタンの名前を変更します option.type が自動的に delay に変更されます 引数は String 型です
+
+option.progress: promise 構文が完了するまで待機し、完了後自動で finish イベントを発火させます option.type が自動的に delay に変更されます 引数は array: promise 型です
+
+
+サンプル
+```javascript
+// キャラクターの現在ステータスを表示します
+alert(chara.status)
+```
+
+
 ## 開発者向け
 
 ローカル動作環境準備
@@ -331,12 +482,22 @@ chara.power = beforeHp
 5/27
 
     初期位置がcanvas外になるバグの修正
-    chara api に chara.size, chara.color を追加
+    chara API に chara.size, chara.color を追加
 
 5/29
 
     pixi.jsをv5.0.3に更新
 
+    pixi.jsのメモリーリークの修正
+
+    ローカルテスト用の bat ファイル追加
+
+    alert API の追加
+
+    eval フィルタの追加
+
 ## ライセンス
 
-ISC @yattali
+@yattali.
+
+Released under the ISC license.

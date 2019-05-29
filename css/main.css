@@ -146,3 +146,97 @@ canvas {
 .gameover button:hover {
   transform: scale(1.2, 1.2);
 }
+
+.alert {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  max-height: 100%;
+  overflow-x: hidden;
+  z-index: 2147483647;
+}
+
+.alert-contents {
+  display: inline-block;
+  margin: 4px;
+  padding: 4px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 2px 6px 2px;
+  color: #333;
+  background-color: white;
+  max-width: 300px;
+  animation: alert-view 0.3s 0s;
+}
+
+.alert-warn {
+  color: #333;
+  background-color: yellow;
+}
+
+.alert-error {
+  color: #fff;
+  background-color: red;
+}
+
+@keyframes alert-view {
+  0% {
+    transform: translateX(100%);
+  }
+}
+
+.alert-message {
+  word-wrap: break-word;
+}
+
+.alert-remove {
+  transition: transform 0.3s 0s;
+  transform: translateX(100%);
+}
+
+.alert-button-content {
+  text-align: right;
+}
+
+.alert-button-content button {
+  margin: 4px;
+}
+
+@keyframes alert-look {
+  25% {
+    filter: contrast(200%);
+  }
+  75% {
+    filter: contrast(200%);
+  }
+}
+
+.alert-progressBar {
+  width: 100%;
+  height: 4px;
+  background-color: #646464;
+  position: relative;
+}
+
+.alert-progressBar div {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: orange;
+  transform: scale(0, 1);
+  transform-origin: left;
+  transition: transform 0.3s 0s;
+}
+
+.alert-objectKey {
+  display: inline-block;
+  width: 80px;
+}
+
+.alert-objectKey:after {
+  content: ":";
+  padding-right: 5px;
+}

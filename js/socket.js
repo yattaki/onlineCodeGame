@@ -10,7 +10,7 @@ class Socket {
     pri.set(this, nameSpace)
   }
 
-  parseSocketName(socketName) {
+  _parseSocketName(socketName) {
     if (socketName === 'string') throw Error('socketNameが Strig 型ではありません')
     if (/-/.test(socketName)) throw Error('socketNameに - を含める事は出来ません')
     return socketName += `-${pri.get(this)}`
@@ -44,19 +44,19 @@ class Socket {
   }
 
   on(socketName, callback) {
-    socketName = this.parseSocketName(socketName)
+    socketName = this._parseSocketName(socketName)
     socket.on(socketName, (args) => callback(...args))
   }
 
 
   broad(socketName, ...args) {
-    socketName = this.parseSocketName(socketName)
+    socketName = this._parseSocketName(socketName)
     socket.emit('broad', socketName, args)
   }
 
 
   private(socketName, socketId, ...args) {
-    socketName = this.parseSocketName(socketName)
+    socketName = this._parseSocketName(socketName)
     socket.emit('private', socketName, socketId, args)
   }
 }

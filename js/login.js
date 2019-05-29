@@ -167,15 +167,19 @@ export default new class Login {
 
   run(code) {
     if (!code) return
+
     try {
-      if (/addEventListener/.test(code)) throw Error('addEventListener は禁止されています。代わりにwindow.on* を使用してください')
+      if (/sleep/.test(code)) throw Error('sleep は禁止されています。他の環境でも絶対に使用しないでください')
+      if (/eval/.test(code)) throw Error('eval は禁止されています。他の環境でも絶対に使用しないでください')
+      if (/addEventListener/.test(code)) throw Error('addEventListener は禁止されています。代わりに window.on* を使用してください')
+      if (/setinterval/.test(code)) throw Error('setinterval は禁止されています。代わりに update 関数を使用してください')
+      if (/_/.test(code)) throw Error('_ の使用は禁止されています。変数名は nameAction のようなキャメルケースが推奨されます')
 
       window.update = null
       !(0, eval)(code)
       sessionStorage.setItem('code', code)
     } catch (error) {
       console.error(error)
-
       alert(error)
     }
   }

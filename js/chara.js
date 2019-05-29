@@ -170,7 +170,7 @@ class CharaApi {
   }
 
 
-  get status() { playerChara.status }
+  get status() { return playerChara.status }
   get x() { return playerChara.status.x }
   get y() { return playerChara.status.y }
   get size() { return playerChara.status.size }

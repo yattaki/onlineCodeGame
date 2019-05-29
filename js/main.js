@@ -1,6 +1,8 @@
 'use strict'
 
 import './login.js'
+import alert from './alert.js'
 
-// window.addEventListener('keydown', (e) => { e.preventDefault() })
+window.alert = alert
+
 window.onerror = (message) => { alert(message) }
