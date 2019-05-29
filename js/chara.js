@@ -191,9 +191,9 @@ export default class Chara {
       y: Math.floor(Math.random() * stage.height),
       size: 20,
       color: 's000000',
-      hp: 50,
-      power: 50,
-      speed: 50,
+      hp: 20,
+      power: 20,
+      speed: 20,
       resource: parseInt(sessionStorage.getItem('resource') || 100),
     }
 
@@ -397,7 +397,7 @@ export default class Chara {
     let timeStamp = new Date()
     stage.addRoopEvent(() => {
       let nawTimeStamp = new Date()
-      if (nawTimeStamp - timeStamp > 500) {
+      if (nawTimeStamp - timeStamp > 200) {
         timeStamp = nawTimeStamp
         this.status.resource++
         sessionStorage.setItem('resource', this.status.resource)
