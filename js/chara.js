@@ -194,7 +194,7 @@ export default class Chara {
       hp: 50,
       power: 50,
       speed: 50,
-      resource: parseInt(sessionStorage.getItem('resource') || 250) - 150,
+      resource: parseInt(sessionStorage.getItem('resource') || 100),
     }
 
     this.socketId = socketId
