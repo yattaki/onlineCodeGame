@@ -397,7 +397,7 @@ export default class Chara {
     let timeStamp = new Date()
     stage.addRoopEvent(() => {
       let nawTimeStamp = new Date()
-      if (nawTimeStamp - timeStamp > 200) {
+      if (nawTimeStamp - timeStamp > 300) {
         timeStamp = nawTimeStamp
         this.status.resource++
         sessionStorage.setItem('resource', this.status.resource)
