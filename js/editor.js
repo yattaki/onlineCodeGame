@@ -92,8 +92,8 @@ export default class Editor {
   }
 
 
-  set value(value = '') {
-    return this.editor.setValue(value)
+  set value(value) {
+    return this.editor.setValue(value || '')
   }
 
   set addClass(value) {

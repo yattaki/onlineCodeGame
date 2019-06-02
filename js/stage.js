@@ -8,11 +8,13 @@ const stage = new class Stage {
   constructor() {
     this._roopFrag = true
     this._renderFrag = false
+    this._updateApi = {}
     this.init()
   }
 
   async init() {
     this.addStage()
+    this.addUpdateApi()
   }
 
   addStage() {
@@ -31,19 +33,29 @@ const stage = new class Stage {
     window.dispatchEvent(new Event('resize'))
   }
 
+
+  addUpdateApi() {
+    window.update = (callback, timer = 33.33) => {
+      if (typeof callback !== 'function') throw Error('update 関数の第一引数は関数で指定してください')
+      this._updateApi.callback = callback
+      this._updateApi.timer = Math.max(33.33, timer)
+    }
+  }
+
   roop(renderer) {
     let timeStamp = new Date()
 
     const roopEvent = () => {
       this._roopFrag && requestAnimationFrame(roopEvent)
 
-      roopListEvent.forEach(callback => callback())
 
       const nawTimeStamp = new Date()
-      if (nawTimeStamp - timeStamp > 100 / 3) {
+      if (nawTimeStamp - timeStamp > this._updateApi.timer) {
         timeStamp = nawTimeStamp
-        typeof window.update === 'function' && window.update()
+        this._updateApi.callback()
       }
+
+      roopListEvent.forEach(callback => callback())
 
       gameover.check()
 

@@ -45,7 +45,14 @@ class Socket {
 
   on(socketName, callback) {
     socketName = this._parseSocketName(socketName)
-    socket.on(socketName, (args) => callback(...args))
+    const event = (args) => callback(...args)
+    socket.on(socketName, event)
+    return event
+  }
+
+  off(socketName, callback) {
+    socketName = this._parseSocketName(socketName)
+    socket.off(socketName, callback)
   }
 
 

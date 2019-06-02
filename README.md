@@ -61,16 +61,18 @@
 
 これは setinterval の代替になります
 
-繰り返しはおおよそ一秒間に30回繰り返し実行されます
+繰り返しの初期値はおおよそ一秒間に30回繰り返し実行されます
 
-    update = () => { callback }
+第二引数を指定することで、繰り返しを遅らせることが可能です
+
+    update(callback: function, timer: number)
 
 サンプル
 ```javascript
 // 自動回復機能を追加します
-update = () => {
+update(() => {
   chara.hpUp(1)
-}
+})
 ```
 
 
@@ -96,7 +98,7 @@ chara.power =  10 // 攻撃力です。初期値は50です
 
 chara.speed =  10 // 移動力です。初期値は50です
 
-chara.resource = 100 // ステータスを変更できるリソースです。初回ブラウザ読み込み時に100になり、ゆっくりと加算されて行きます
+chara.point = 100 // ステータスを変更できるリソースです。初回ブラウザ読み込み時に100になり、ゆっくりと加算されて行きます
 ---
 
 ---
@@ -130,9 +132,9 @@ chara.y = 200
 サンプル
 ```javascript
 // キャラクターの体力が少なくなった時に、小さくなって当たりにくくします
-update = () => {
+update(() => {
     chara.size = chara.hp
-}
+})
 ```
 
 
@@ -148,12 +150,12 @@ update = () => {
 サンプル
 ```javascript
 // ステータスに応じて色を変える
-update = () => {
+update(() => {
     const r = Math.max(0, Math.min(255, chara.power)).toString(16).padStart(2, '0')
     const g = Math.max(0, Math.min(255, chara.hp)).toString(16).padStart(2, '0')
     const b = Math.max(0, Math.min(255, chara.speed)).toString(16).padStart(2, '0')
     chara.color = `${r}${g}${b}`
-}
+})
 ```
 
 
@@ -179,11 +181,11 @@ update = () => {
 chara.hp = 10
 
 // キャラクターの体力に10加算されて、20になります
-// resourceが10消費されます
+//pointが10消費されます
 chara.hpUp(10)
 
 // キャラクターの体力が50になります
-// resourceが20消費されます
+//pointが20消費されます
 chara.ho = 50
 ```
 
@@ -206,14 +208,14 @@ chara.ho = 50
 サンプル
 ```javascript
 // キャラクターの攻撃力が10になります
-chara.powe = 10
+chara.power = 10
 
 // キャラクターの攻撃力に10加算されて、20になります
-// resourceが10消費されます
+//pointが10消費されます
 chara.powerUp(10)
 
 // キャラクターの攻撃力が50になります
-// resourceが20消費されます
+//pointが20消費されます
 chara.ho = 50
 ```
 
@@ -239,11 +241,11 @@ chara.ho = 50
 chara.speed = 10
 
 // キャラクターの速度に10加算されて、20になります
-// resourceが10消費されます
+//pointが10消費されます
 chara.speedUp(10)
 
 // キャラクターの速度が50になります
-// resourceが20消費されます
+//pointが20消費されます
 chara.speed = 50
 ```
 
@@ -252,20 +254,20 @@ chara.speed = 50
 
 現在のリソースを取得します
 
-    chara.resource: number
+    chara.point: number
 
 サンプル
 ```javascript
 // キャラクターの体力をリソースの半分まで加算します
 // リソースが半分消費されます
-chara.hpUp(chara.resource / 2)
+chara.hpUp(chara.point / 2)
 
 // 攻撃力を現在のリソースの値に変更します
 // リソースが消費され、前の攻撃力分だけ残ります
-chara.power = chara.resource
+chara.power = chara.point
 
 // 残りのリソースを速度に追加します
-chara.hpUp(chara.resource)
+chara.hpUp(chara.point)
 ```
 
 ---
@@ -273,7 +275,7 @@ chara.hpUp(chara.resource)
 
 現在の設定を取得します
 
-    chara.status: {x, y, size, color, hp, power, speed, resource}
+    chara.status: {x, y, size, color, hp, power, speed,point}
 
 サンプル
 ```javascript
@@ -495,6 +497,14 @@ alert(chara.status)
     alert API の追加
 
     eval フィルタの追加
+
+6/3
+
+    resource => point に変更
+
+    ランキング機能の実装
+
+    スタートの変更
 
 ## ライセンス
 

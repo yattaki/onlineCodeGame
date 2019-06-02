@@ -4,6 +4,7 @@ import stage from './stage.js'
 import Socket from './socket.js'
 import color from './color.js'
 import gameover from './gameover.js'
+import rank from './rank.js'
 
 const socket = new Socket('chara')
 const charaMap = new Map()
@@ -85,9 +86,9 @@ class CharaApi {
 
     value = Math.floor(value)
     value = value > 0 ? value : 1
-    value = value < playerChara.status.resource + playerChara.status.hp ? value : playerChara.status.resource + playerChara.status.hp
-    const resource = playerChara.status.resource - value + playerChara.status.hp
-    const updateStatus = { hp: value, resource: resource }
+    value = value < playerChara.status.point + playerChara.status.hp ? value : playerChara.status.point + playerChara.status.hp
+    const point = playerChara.status.point - value + playerChara.status.hp
+    const updateStatus = { hp: value, point: point }
     playerChara.update(updateStatus)
     socket.broad('update', updateStatus, socket.id)
   }
@@ -97,9 +98,9 @@ class CharaApi {
 
     value = Math.floor(value)
     value = value < 0 && value - playerChara.status.hp < 1 ? 1 - playerChara.status.hp : value
-    value = value < playerChara.status.resource ? value : playerChara.status.resource
-    const resource = playerChara.status.resource - value
-    const updateStatus = { hp: playerChara.status.hp + value, resource: resource }
+    value = value < playerChara.status.point ? value : playerChara.status.point
+    const point = playerChara.status.point - value
+    const updateStatus = { hp: playerChara.status.hp + value, point: point }
     playerChara.update(updateStatus)
     socket.broad('update', updateStatus, socket.id)
   }
@@ -114,11 +115,11 @@ class CharaApi {
       negativeFrag = true
       value = -value
     }
-    value = value < playerChara.status.resource + playerChara.status.power ? value : playerChara.status.resource + playerChara.status.power
-    const resource = playerChara.status.resource - value + playerChara.status.power
+    value = value < playerChara.status.point + playerChara.status.power ? value : playerChara.status.point + playerChara.status.power
+    const point = playerChara.status.point - value + playerChara.status.power
     if (negativeFrag) { value = -value }
 
-    const updateStatus = { power: value, resource: resource }
+    const updateStatus = { power: value, point: point }
 
     playerChara.update(updateStatus)
     socket.broad('update', updateStatus, socket.id)
@@ -133,11 +134,11 @@ class CharaApi {
       negativeFrag = true
       value = -value
     }
-    value = value < playerChara.status.resource ? value : playerChara.status.resource
-    const resource = playerChara.status.resource - value
+    value = value < playerChara.status.point ? value : playerChara.status.point
+    const point = playerChara.status.point - value
     if (negativeFrag) { value = -value }
 
-    const updateStatus = { power: playerChara.status.power + value, resource: resource }
+    const updateStatus = { power: playerChara.status.power + value, point: point }
     playerChara.update(updateStatus)
     socket.broad('update', updateStatus, socket.id)
   }
@@ -149,9 +150,9 @@ class CharaApi {
     if (value < 0) throw Error('chara.speed は負の値を宣言出来ません')
 
     value = value > 0 ? value : 1
-    value = value < playerChara.status.resource + playerChara.status.speed ? value : playerChara.status.resource + playerChara.status.speed
-    const resource = playerChara.status.resource - value + playerChara.status.speed
-    const updateStatus = { speed: value, resource: resource }
+    value = value < playerChara.status.point + playerChara.status.speed ? value : playerChara.status.point + playerChara.status.speed
+    const point = playerChara.status.point - value + playerChara.status.speed
+    const updateStatus = { speed: value, point: point }
     playerChara.update(updateStatus)
     socket.broad('update', updateStatus, socket.id)
   }
@@ -162,9 +163,9 @@ class CharaApi {
     value = Math.floor(value)
 
     value = playerChara.status.speed + value > 0 ? value : playerChara.status.speed - 1
-    value = value < playerChara.status.resource ? value : playerChara.status.resource
-    const resource = playerChara.status.resource - value
-    const updateStatus = { speed: playerChara.status.speed + value, resource: resource }
+    value = value < playerChara.status.point ? value : playerChara.status.point
+    const point = playerChara.status.point - value
+    const updateStatus = { speed: playerChara.status.speed + value, point: point }
     playerChara.update(updateStatus)
     socket.broad('update', updateStatus, socket.id)
   }
@@ -178,7 +179,7 @@ class CharaApi {
   get hp() { return playerChara.status.hp }
   get power() { return playerChara.status.power }
   get speed() { return playerChara.status.speed }
-  get resource() { return playerChara.status.resource }
+  get point() { return playerChara.status.point }
 }
 
 
@@ -194,7 +195,7 @@ export default class Chara {
       hp: 20,
       power: 20,
       speed: 20,
-      resource: parseInt(sessionStorage.getItem('resource') || 100),
+      point: parseInt(sessionStorage.getItem('myPoint') || 100),
     }
 
     this.socketId = socketId
@@ -320,12 +321,13 @@ export default class Chara {
 
 
   collisionCheck() {
+    if (this !== playerChara) return
+
     for (const chara of charaMap.values()) {
       if (chara === this) continue
 
       if (Math.sqrt(Math.pow(chara.status.x - this.status.x, 2) + Math.pow(chara.status.y - this.status.y, 2)) < chara.status.size + this.status.size) {
         this.hit(chara.status.power)
-        chara.hit(this.status.power)
       }
     }
   }
@@ -333,10 +335,13 @@ export default class Chara {
 
   hit(power) {
     if (!this.hitFrag) return
+
     this.hitFrag = false
     setTimeout(() => { this.hitFrag = true }, 1000)
 
-    this.update({ hp: this.status.hp - power })
+    const updateData = { hp: this.status.hp - power }
+    socket.broad('update', updateData, this.socketId)
+    this.update(updateData)
   }
 
 
@@ -344,8 +349,11 @@ export default class Chara {
     playerChara = charaClass
     playerButton = button
     this.addKeyEvent()
-    this.addResourceElement()
+    this.addpointElement()
     window.chara = new CharaApi()
+
+    this.hitFrag = false
+    setTimeout(() => { this.hitFrag = true }, 1000 * 30)
   }
 
 
@@ -369,7 +377,6 @@ export default class Chara {
         case 's':
           moveY = undefined; break
       }
-
     })
 
     stage.addRoopEvent(() => {
@@ -388,22 +395,17 @@ export default class Chara {
   }
 
 
-  addResourceElement() {
-    const resourceElement = document.createElement('div')
-    resourceElement.classList.add('resource')
-    resourceElement.textContent = this.status.resource
-    document.body.appendChild(resourceElement)
+  addpointElement() {
 
     let timeStamp = new Date()
     stage.addRoopEvent(() => {
       let nawTimeStamp = new Date()
       if (nawTimeStamp - timeStamp > 300) {
         timeStamp = nawTimeStamp
-        this.status.resource++
-        sessionStorage.setItem('resource', this.status.resource)
+        this.status.point++
       }
-
-      if (resourceElement.textContent !== this.status.resource) resourceElement.textContent = this.status.resource
+      sessionStorage.setItem('myPoint', this.status.point)
+      rank.update(socket.id, this.status.point)
     })
   }
 }
