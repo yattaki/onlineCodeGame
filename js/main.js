@@ -50,13 +50,16 @@ export default new class Main {
     myEditor.toggle()
     myEditor.value = sessionStorage.getItem('code') || ''
 
-    this.startButton()
 
     await socket.connect()
     this._group = socket.id
     this.openSocket()
     this._myButton = this.createCharaButton()
+
+    this.startButton()
+
     socket.broad('send', socket.id)
+    socket.broad('addChara', sessionStorage.getItem('myColor'), socket.id)
   }
 
 
@@ -85,10 +88,10 @@ export default new class Main {
     button.classList.add('startButton')
     button.style.backgroundColor = hexColor
     button.style.color = color.hexToTextColor(hexColor)
+    app.appendChild(button)
 
     const beforeSaveEvent = this.beforeSaveEvent()
 
-    app.appendChild(button)
     button.addEventListener('click', this.startEvent(button, beforeSaveEvent))
     myEditor.addEventListener('save', beforeSaveEvent)
   }
@@ -111,6 +114,7 @@ export default new class Main {
 
       const chara = new Chara({ color: sessionStorage.getItem('myColor') }, socket.id)
       chara.playerChara(chara, button)
+
       myEditor.addEventListener('save', this.codeSaveEvent())
       this.run(myEditor.value)
     }
@@ -195,9 +199,11 @@ export default new class Main {
       if (/setinterval/.test(code)) throw Error('setinterval は禁止されています。代わりに update 関数を使用してください')
       if (/_/.test(code)) throw Error('_ の使用は禁止されています。変数名は nameAction のようなキャメルケースが推奨されます')
 
+      if (window.chara) {
+        !(0, eval)(`'use static';${code}`)
+      }
 
-      !(0, eval)(`'use static';${code}`)
-
+      myEditor.value = code
       socket.broad('codeUpdate', code, socket.id)
       sessionStorage.setItem('code', code)
     } catch (error) {

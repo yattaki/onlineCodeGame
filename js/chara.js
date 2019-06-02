@@ -198,17 +198,16 @@ export default class Chara {
       point: parseInt(sessionStorage.getItem('myPoint') || 100),
     }
 
+    this.status = Object.assign(this.status, status)
     this.socketId = socketId
 
     socket.connect(() => {
-      this.add(status)
+      this.add()
     })
   }
 
 
-  add(status) {
-    this.status = Object.assign(this.status, status)
-
+  add() {
     this.sprite = new PIXI.Container()
     this.charaSpriteChange()
     this.sprite.position.x = this.status.x
