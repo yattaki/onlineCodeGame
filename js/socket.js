@@ -4,6 +4,7 @@ const socket = io.connect()
 window.io = null
 
 const pri = new WeakMap()
+let group
 
 class Socket {
   constructor(nameSpace) {
@@ -65,6 +66,14 @@ class Socket {
   private(socketName, socketId, ...args) {
     socketName = this._parseSocketName(socketName)
     socket.emit('private', socketName, socketId, args)
+  }
+
+  set group(value) {
+    group = value
+  }
+
+  get group() {
+    return group
   }
 }
 

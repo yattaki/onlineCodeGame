@@ -7,6 +7,7 @@ import Editor from './editor.js'
 import remove from './remove.js'
 import block from './block.js'
 import gameover from './gameover.js'
+import sample from './sample.js'
 
 const socket = new Socket('login')
 
@@ -37,13 +38,11 @@ socket.on('receveCode', (code, type) => {
 
 export default new class Main {
   constructor() {
-    this._group
     this._editorId
 
     myEditor.addEventListener('keydown', this.toggleEvent())
     window.addEventListener('keydown', this.toggleEvent())
   }
-
 
 
   async init() {
@@ -52,11 +51,12 @@ export default new class Main {
 
 
     await socket.connect()
-    this._group = socket.id
+    socket.group = socket.id
     this.openSocket()
     this._myButton = this.createCharaButton()
 
     this.startButton()
+    sample.add()
 
     socket.broad('send', socket.id)
     socket.broad('addChara', sessionStorage.getItem('myColor'), socket.id)
@@ -68,11 +68,14 @@ export default new class Main {
     socket.private('callCode', socketId, socket.id, 'main')
     myEditor.addEventListener('save', this.codeSaveEvent())
 
-    this._group = socketId
+    socket.group = socketId
+    sample.add()
 
     socket.disconnect((disconnectId) => {
       if (disconnectId === socketId) { gameover.end() }
     })
+
+    this.sample()
 
     await socket.connect()
     this.openSocket()
@@ -130,10 +133,10 @@ export default new class Main {
     return () => {
       const code = myEditor.value
 
-      if (this._group === socket.id) {
+      if (socket.group === socket.id) {
         this.run(code)
       } else {
-        socket.private('eval', this._group, code)
+        socket.private('eval', socket.group, code)
       }
     }
   }
@@ -154,7 +157,7 @@ export default new class Main {
 
   toggleEditorEvent(socketId) {
     return () => {
-      if (socketId === this._group) {
+      if (socketId === socket.group) {
         socket.private('callCode', socketId, socket.id, 'main')
         myEditor.toggle()
       } else {
@@ -185,6 +188,8 @@ export default new class Main {
 
       charaButton.remove()
       charaList.delete(socketId)
+
+      if (socket.group === socketId) gameover.end()
     }
   }
 
@@ -214,7 +219,7 @@ export default new class Main {
 
 
   codeUpdate(code, socketId) {
-    if (socketId === this._group) {
+    if (socketId === socket.group) {
       return myEditor.value = code
     } else {
       if (socketId === this._editorId) { return otherEditor.value = code }
@@ -226,7 +231,7 @@ export default new class Main {
     socket.disconnect(this.removeCharaEvent())
 
     socket.on('send', (socketId) => {
-      if (this._group === socket.id) socket.private('reply', socketId, sessionStorage.getItem('myColor'), socket.id)
+      if (socket.group === socket.id) socket.private('reply', socketId, sessionStorage.getItem('myColor'), socket.id)
     })
 
     socket.on('addChara', (color, socketId) => {

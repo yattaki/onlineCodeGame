@@ -269,7 +269,7 @@ export default class Chara {
         case 'size': this.charaSpriteSizeUpdate(updateStatus.size); break
         case 'color': this.charaSpriteColorUpdate(updateStatus.color); break
         case 'hp': this.hpUpdate(updateStatus.hp); break
-        default: this.statsUpdate(statusName, updateStatus[statusName]); break
+        default: this.status[statusName] = updateStatus[statusName]; break
       }
     }
   }
@@ -307,26 +307,20 @@ export default class Chara {
 
 
   hpUpdate(hp) {
-    if (this.status.hp < 0) return
+    if (this.status.hp <= 0) return
 
-    this.statsUpdate('hp', hp)
+    this.status.hp = hp
     this.hpSpriteChange()
   }
 
 
-  statsUpdate(statusName, value) {
-    this.status[statusName] = value
-  }
-
-
   collisionCheck() {
-    if (this !== playerChara) return
-
     for (const chara of charaMap.values()) {
       if (chara === this) continue
 
       if (Math.sqrt(Math.pow(chara.status.x - this.status.x, 2) + Math.pow(chara.status.y - this.status.y, 2)) < chara.status.size + this.status.size) {
         this.hit(chara.status.power)
+        chara.hit(this.status.power)
       }
     }
   }
@@ -338,7 +332,7 @@ export default class Chara {
     this.hitFrag = false
     setTimeout(() => { this.hitFrag = true }, 1000)
 
-    const updateData = { hp: this.status.hp - power }
+    const updateData = { hp: this.status.hp - Math.round(power / 2) }
     socket.broad('update', updateData, this.socketId)
     this.update(updateData)
   }

@@ -2,7 +2,6 @@
 
 import Socket from './socket.js'
 import stage from './stage.js'
-import Chara from './chara.js'
 
 const socket = new Socket('gameover')
 
@@ -15,8 +14,6 @@ export default new class Gameover {
       if (chara.status.hp <= 0) {
         if (chara.socketId === socket.id) {
           this.end()
-        } else {
-          chara.remove()
         }
       }
     }

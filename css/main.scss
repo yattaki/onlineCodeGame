@@ -21,6 +21,11 @@ canvas {
   background-color: white;
 }
 
+pre code {
+  user-select: text;
+  font-family: Menlo, Consolas, "DejaVu Sans Mono", monospace;
+}
+
 .ace_layer,
 .ace_gutter {
   transition: width 0.3s 0s;
@@ -89,6 +94,7 @@ canvas {
   position: fixed;
   top: 0;
   right: 0;
+  z-index: 100000;
   padding: 5px 0;
   transition: transform 0.3s 0s, top 0.3s 0s, right 0.3s 0s;
 }
@@ -98,6 +104,7 @@ canvas {
   height: 40px;
   line-height: 40px;
   translate: transform 0.3s 0s;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 4px 4px 2px;
 
   pre {
     display: inline-block;
@@ -121,6 +128,7 @@ canvas {
   z-index: 10;
   flex-direction: column;
   height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
 
   button {
     width: 40px;
@@ -183,7 +191,7 @@ canvas {
 }
 
 .editor-mini {
-  width: calc(50vw - 40px);
+  width: 50vw;
 }
 
 .resource {
@@ -256,6 +264,7 @@ canvas {
   position: fixed;
   right: 0;
   bottom: 0;
+  z-index: 100000;
   max-height: 100%;
   overflow: hidden;
   z-index: 2147483647;
@@ -341,4 +350,45 @@ canvas {
     content: ":";
     padding-right: 5px;
   }
+}
+
+.sample {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 10000;
+  max-width: 50vw;
+  height: 100%;
+  padding: 5px;
+  transition: transform 0.3s 0s;
+  box-shadow: rgba($color: #000000, $alpha: 0.2) -2px 0 4px 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.sample-hide {
+  transform: translate(100%, 0);
+}
+
+.sample-button {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  font-size: 20px;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 0px;
+  padding: 0;
+  color: inherit;
+  background-color: orange;
+  cursor: pointer;
+  z-index: 10000;
+  outline: none;
+  border: none;
+  appearance: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  transition: transform 0.3s 0s;
 }

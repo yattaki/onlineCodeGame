@@ -1,6 +1,9 @@
 'use strict'
 
 import block from './block.js'
+import Socket from './socket.js'
+
+const socket = new Socket('alert')
 
 const typeOf = (item) => {
   return Object.prototype.toString.call(item).slice(8, -1).toLowerCase()
@@ -10,7 +13,7 @@ const alertList = document.createElement('div')
 alertList.classList.add('alert')
 document.body.appendChild(alertList)
 
-const alert = (message, option = {}) => {
+const alert = (message, option = {}, sendFrag = true) => {
   const { wrapper, alertContents, messageContent, buttonContent } = block.add(alertList, [
     'div', { class: 'alert-wrapper', return: 'wrapper' }, [
       'a', { class: 'alert-contents', return: 'alertContents' }, [
@@ -19,6 +22,9 @@ const alert = (message, option = {}) => {
       ]
     ]
   ])
+
+  option.socketId = socket.group
+  sendFrag && socket.broad('alert', message, option)
 
   if (typeof message === 'string') {
     block.add(messageContent, [
@@ -184,5 +190,11 @@ const alert = (message, option = {}) => {
 
   alertList.scrollTop = alertList.scrollHeight
 }
+
+
+socket.on('alert', (message, option) => {
+  if (socket.group === option.socketId) alert(message, option, false)
+})
+
 
 export default alert
