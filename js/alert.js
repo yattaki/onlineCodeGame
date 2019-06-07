@@ -82,6 +82,11 @@ const alert = (message, option = {}, sendFrag = true) => {
     case 'error':
     case 'warn': {
       alertContents.classList.add(`alert-${option.type}`)
+
+      const time = option ? option.delay || 5000 : 5000
+      setTimeout(() => {
+        removeEvent(wrapper, 'alert-remove')
+      }, time)
       break
     }
 
